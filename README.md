@@ -1,7 +1,6 @@
-# nat-birthday-paradox
-
-A small simulator that illustrates the birthday paradox as applied to
-NAT traversal. Run `paradox.py --help` for quick instructions.
+A small calculator that computes the probability of successfully
+traversing endpoint-dependent NATs by exploiting (a variant of) the
+birthday paradox. Run `paradox.py --help` for quick instructions.
 
 ## Easy birthday attack
 
@@ -40,3 +39,19 @@ that the same amount of packets results in a ~0% chance of
 connectivity. You have to crank both sides to 65536 probes each
 (e.g. 256 probes from each of 256 sockets, on both sides) to get back
 to a 64% probability of communication.
+
+## Algorithms
+
+The formulas to compute the probability of traversal aren't
+documented, because doing so would require writing a small explanatory
+proof, and I can't be bothered to do the requisite TeX shuffling. It's
+a small variant on the birthday paradox, so if you follow the proof of
+that, and make the necessary tweaks to account for the fact that we're
+hunting for a collision between two sets, rather than collisions
+within one set, you'll arrive at the logic.
+
+I've also left in the code that runs one iteration of the birthday
+attack, as an attempt to illustrate what would happen in real network
+code that runs it, and specifically what we're trying to find
+collisions on in the easy and hard cases - which is also where the
+huge escalation in difficulty comes from for the "hard" case.
