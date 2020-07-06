@@ -5,7 +5,7 @@
 #
 # It never successfully finds a path in most cases, expect it to run
 # for ever.
-
+from __future__ import division
 import random
 random.seed()
 
@@ -20,8 +20,11 @@ class Clock(object):
         return self.time
 
 class Mapping(object):
-    def __init__(self, clock, wan, remote):
+    __slots__ = ['clock', 'lan_port', 'wan_port', 'remote_port', 'until']
+
+    def __init__(self, clock, lan, wan, remote):
         self.clock = clock
+        self.lan_port = lan
         self.wan_port = wan
         self.remote_port = remote
         self.until = 0
@@ -31,6 +34,10 @@ class Mapping(object):
 
     def refresh(self, until):
         self.until = until
+
+NAT_SIZE = 10000
+PPS = 20
+MAX_PORT = 65535
 
 class NAT(object):
     def __init__(self, clock, mapping_valid_window):
@@ -45,12 +52,13 @@ class NAT(object):
         # Pick a random remote port, and create/update the
         # corresponding NAT mapping to figure out what the
         # corresponding WAN port is.
-        remote_port = random.randrange(1025, 65535)
-        m = self.by_remote_port.get(remote_port)
+        src_port = random.randrange(1025, MAX_PORT)
+        remote_port = random.randrange(1025, MAX_PORT)
+        m = self.by_remote_port.get((src_port, remote_port))
         if not m or m.expired():
-            wan_port = random.randrange(1025, 65535)
-            m = Mapping(self.clock, wan_port, remote_port)
-            self.by_remote_port[remote_port] = m
+            wan_port = random.randrange(1025, MAX_PORT)
+            m = Mapping(self.clock, src_port, wan_port, remote_port)
+            self.by_remote_port[src_port, remote_port] = m
             self.by_all[(wan_port, remote_port)] = m
         m.refresh(self.clock.now()+self.valid_win)
 
@@ -64,12 +72,12 @@ class NAT(object):
 
 def attempt():
     clock = Clock()
-    a, b = NAT(clock, 10), NAT(clock, 10)
+    a, b = NAT(clock, NAT_SIZE/PPS), NAT(clock, NAT_SIZE/PPS)
 
     i=0
     while not (a.guess(b) or b.guess(a)):
         i+=1
-        clock.advance(0.05)
+        clock.advance(1/PPS)
         if i%10000 == 0:
             print("{} attempts".format(i))
     print("guessed after {} attempts", i)
