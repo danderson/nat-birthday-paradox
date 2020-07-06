@@ -56,12 +56,6 @@ def attempt(valid_window_secs=10, xmit_delta=0.1):
         clock.advance(xmit_delta)
     return i, clock.now()
 
-def main():
-    p = argparse.ArgumentParser(description="Simulate the NAT birthday paradox")
-    p.add_argument("-i", "--iterations", type=int, default=100)
-    p.add_argument("-x", "--probe-interval", type=float, default=0.1)
-    p.add_argument("-v", "--mapping-valid-time", type=float, fefault=10)
-    
 attempts = 1000
 window_secs = 10
 delta = 0.1
