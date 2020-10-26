@@ -63,7 +63,7 @@ def probability(a_side=256, b_side=256, hard=False):
         num_options *= num_options
     p = 1.0
     for i in range(b_side):
-        p *= (num_options-a_side-i)/(num_options-i)
+        p *= float(num_options-a_side-i)/float(num_options-i)
     return 1.0 - p
 
 def main():
